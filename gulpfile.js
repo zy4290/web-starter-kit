@@ -26,6 +26,7 @@ var del = require('del');
 var runSequence = require('run-sequence');
 var browserSync = require('browser-sync');
 var pagespeed = require('psi');
+var favicons = require('favicons');
 var reload = browserSync.reload;
 
 var AUTOPREFIXER_BROWSERS = [
@@ -47,6 +48,31 @@ gulp.task('jshint', function () {
     .pipe($.jshint())
     .pipe($.jshint.reporter('jshint-stylish'))
     .pipe($.if(!browserSync.active, $.jshint.reporter('fail')));
+});
+
+gulp.task('favicon', function() {
+  favicons({
+    // I/O
+    source: 'app/images/favicons/favicon-1024x1024.png',
+    dest: 'dist',
+
+    // Icon Types
+    android: true,
+    apple: true,
+    coast: true,
+    favicons: true,
+    firefox: true,
+    opengraph: false,
+    windows: true,
+
+    // Miscellaneous
+    html: 'dist/index.html',
+    background: 'transparent',
+    tileBlackWhite: false,
+    manifest: null,
+    trueColor: false,
+    logging: true
+  });
 });
 
 // Optimize Images
