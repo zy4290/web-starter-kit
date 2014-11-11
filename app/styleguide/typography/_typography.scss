@@ -132,7 +132,7 @@ $performance_font: 'Helvetica', 'Arial', sans-serif;
   font-size: 14px;
   font-weight: 400;
   line-height: 24px;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.1px;
 
   @if $colorContrast {
     opacity: 0.87;
@@ -188,7 +188,7 @@ $performance_font: 'Helvetica', 'Arial', sans-serif;
 @mixin typo-button($colorContrast: false, $usePreferred: true) {
   @include typo-preferred-font($usePreferred);
   font-size: 14px;
-  font-weight: 400;
+  font-weight: 500;
   text-transform: uppercase;
   line-height: 1;
   letter-spacing: 0.04em;
@@ -221,26 +221,33 @@ h1 small, h2 small, h3 small, h4 small, h5 small, h6 small {
 
 h1 {
   @include typo-display-3();
+  margin-bottom: 24px;
+  line-height: 1.35;
 }
 
 h2 {
   @include typo-display-2();
+  margin-bottom: 24px;
 }
 
 h3 {
   @include typo-display-1();
+  margin-bottom: 24px;
 }
 
 h4 {
   @include typo-headline();
+  margin-bottom: 16px;
 }
 
 h5 {
   @include typo-title();
+  margin-bottom: 16px;
 }
 
 h6 {
   @include typo-subhead();
+  margin-bottom: 16px;
 }
 
 p {
@@ -250,11 +257,12 @@ p {
 }
 
 a {
-  font-weight: bold;
+  font-weight: 500;
 }
 
 blockquote {
   @include typo-blockquote();
+  line-height: 1.35;
 }
 
 mark {
@@ -358,11 +366,11 @@ dt {
 }
 
 .Typography--caption {
-  @include typo-caption();
+  @include typo-caption($usePreferred: false);
 }
 
 .Typography--caption--forcePreferredFont {
-  @include typo-caption($usePreferred: true);
+  @include typo-caption($usePreferred: false);
 }
 
 .Typography--caption--colorContrast {
@@ -370,7 +378,7 @@ dt {
 }
 
 .Typography--caption--forcePreferredFont--colorContrast {
-  @include typo-caption($colorContrast: true, $usePreferred: true);
+  @include typo-caption($colorContrast: true, $usePreferred: false);
 }
 
 .Typography--menu {
@@ -422,12 +430,9 @@ dt {
     text-transform: capitalize
 }
 
-.Typography--tableStriped > tbody > tr:nth-child(odd) > td,
-.Typography--tableStriped > tbody > tr:nth-child(odd) > th {
-    background-color: #f9f9f9
-}
+table th {
+  @include typo-caption($colorContrast: true);
 
-.Typography--tableStriped > tbody > tr:nth-child(odd) > td,
-.Typography--tableStriped > tbody > tr:nth-child(odd) > th {
-    background-color: #f9f9f9
+  vertical-align: top;
+  text-align: left;
 }
