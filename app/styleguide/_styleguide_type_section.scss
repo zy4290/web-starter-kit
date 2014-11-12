@@ -1,0 +1,75 @@
+$html-element-bg-color: #00E5FE;
+$clipboard-icon-size: 16px;
+
+.SectionType {
+  padding: $padding;
+
+  background-color: $keyart-bg-color;
+}
+
+.SectionType-item {
+  margin-bottom: $padding;
+}
+
+.SectionType-typeElement {
+  display: block;
+
+  margin-bottom: $padding / 3;
+}
+
+.SectionType-info {
+  display: flex;
+
+  flex-direction: row;
+
+  align-items: center;
+
+  > * {
+    margin-right: ($padding / 2);
+  }
+
+  > *:last-child {
+    margin-right: 0;
+  }
+}
+
+.SectionType-htmlElement {
+  min-width: $clipboard-icon-size;
+  height: $clipboard-icon-size;
+
+  padding: ($padding / 2);
+
+  color: white;
+  text-align: center;
+  border-radius: $clipboard-icon-size + $padding;
+  background-color: $html-element-bg-color;
+}
+
+.SectionType-clipboardElement {
+  width: $clipboard-icon-size;
+  height: $clipboard-icon-size;
+
+  padding: ($padding / 2);
+
+  border-radius: 100%;
+  background-color: white;
+
+  svg {
+    width: $clipboard-icon-size;
+    height: $clipboard-icon-size;
+
+    fill: $icon-color;
+  }
+}
+
+.SectionType-itemDescrip {
+
+}
+
+.SectionType-subsection {
+  margin-bottom: 3 * $padding;
+}
+
+.SectionType-subsection:last-child {
+  margin-bottom: 0;
+}
