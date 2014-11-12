@@ -18,6 +18,18 @@ $text-color: #212121;
 
 @import "styleguide_type_section";
 @import "styleguide_button_section";
+@import "styleguide_nav_section";
+
+
+/*************************
+
+WARNING: THIS SHOULD BE IN A STYLEGUIDE MODULE SOMEWHERE
+
+*************************/
+pre {
+  overflow-x: auto;
+}
+
 
 body {
   margin: 0;
@@ -48,6 +60,10 @@ body {
 body > section {
   padding: $padding;
   background-color: $keyart-bg-color;
+
+  > h1 {
+    @include typo-headline();
+  }
 }
 
 .StyleguideNavigation {
@@ -121,5 +137,26 @@ body > section {
 
   > *:last-child {
     margin-right: 0;
+  }
+}
+
+.StyleguideSection-item {
+  margin-bottom: $padding * 1.5;
+}
+
+.StyleguideSection-clipboardElement {
+  width: $clipboard-icon-size;
+  height: $clipboard-icon-size;
+
+  padding: ($padding / 2);
+
+  border-radius: 100%;
+  background-color: white;
+
+  svg {
+    width: $clipboard-icon-size;
+    height: $clipboard-icon-size;
+
+    fill: $icon-color;
   }
 }

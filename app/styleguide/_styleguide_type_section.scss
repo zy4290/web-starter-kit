@@ -7,10 +7,6 @@ $clipboard-icon-size: 16px;
 
 }
 
-.SectionType-item {
-  margin-bottom: $padding;
-}
-
 .SectionType-typeElement {
   display: block;
 
@@ -27,23 +23,6 @@ $clipboard-icon-size: 16px;
   text-align: center;
   border-radius: $clipboard-icon-size + $padding;
   background-color: $html-element-bg-color;
-}
-
-.SectionType-clipboardElement {
-  width: $clipboard-icon-size;
-  height: $clipboard-icon-size;
-
-  padding: ($padding / 2);
-
-  border-radius: 100%;
-  background-color: white;
-
-  svg {
-    width: $clipboard-icon-size;
-    height: $clipboard-icon-size;
-
-    fill: $icon-color;
-  }
 }
 
 .SectionType-itemDescrip {
