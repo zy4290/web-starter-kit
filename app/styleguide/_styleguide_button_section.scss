@@ -1,0 +1,13 @@
+@import "../styleguide_demo_bp";
+@import "../shadow/_shadow";
+@import "_button";
+
+.SectionButtons-subsection {
+  button {
+    margin: 0 auto;
+  }
+}
+
+.SectionButtons-info {
+  justify-content: center;
+}

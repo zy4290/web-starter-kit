@@ -1,10 +1,10 @@
+@import 'typography/typography';
+
 $html-element-bg-color: #00E5FE;
 $clipboard-icon-size: 16px;
 
 .SectionType {
-  padding: $padding;
 
-  background-color: $keyart-bg-color;
 }
 
 .SectionType-item {
@@ -15,22 +15,6 @@ $clipboard-icon-size: 16px;
   display: block;
 
   margin-bottom: $padding / 3;
-}
-
-.SectionType-info {
-  display: flex;
-
-  flex-direction: row;
-
-  align-items: center;
-
-  > * {
-    margin-right: ($padding / 2);
-  }
-
-  > *:last-child {
-    margin-right: 0;
-  }
 }
 
 .SectionType-htmlElement {
@@ -64,12 +48,4 @@ $clipboard-icon-size: 16px;
 
 .SectionType-itemDescrip {
 
-}
-
-.SectionType-subsection {
-  margin-bottom: 3 * $padding;
-}
-
-.SectionType-subsection:last-child {
-  margin-bottom: 0;
 }
