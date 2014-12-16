@@ -19,6 +19,7 @@ $text-color: #212121;
 @import "styleguide_type_section";
 @import "styleguide_button_section";
 @import "styleguide_nav_section";
+@import "styleguide_forms_section";
 
 
 /*************************
@@ -126,6 +127,7 @@ body > section {
 
 .StyleguideSection-info {
   display: flex;
+  display: none;
 
   flex-direction: row;
 
