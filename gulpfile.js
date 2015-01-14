@@ -28,6 +28,44 @@ var browserSync = require('browser-sync');
 var pagespeed = require('psi');
 var reload = browserSync.reload;
 
+// Auto-Generate favicons
+gulp.task('favicons', function() {
+  gulp.src('app/index.html')
+    .pipe($.favicons({
+      files: {
+        src: 'app/images/favicons/favicon-1024x1024.png',
+        dest: 'dist/favicons/',
+        html: 'dist/index.html',
+        androidManifest: 'dist/manifest.json',
+        browserConfig: null,
+        firefoxManifest: 'dist/manifest.webapp',
+        yandexManifest: null
+      },
+      icons: {
+        android: true,
+        appleIcon: true,
+        appleStartup: true,
+        coast: true,
+        favicons: true,
+        firefox: true,
+        opengraph: true,
+        windows: true,
+        yandex: true
+      },
+      settings: {
+        appName: 'Web Starter Kit',
+        appDescription: 'Web Starter Kit',
+        developer: null,
+        developerURL: null,
+        background: '#3372DF',
+        index: null,
+        url: null,
+        logging: true
+      }
+    }))
+    .pipe(gulp.dest('dist'));
+});
+
 // Lint JavaScript
 gulp.task('jshint', function() {
   return gulp.src(['app/scripts/**/*.js', 'app/styleguide/**/*.js'])
@@ -40,19 +78,23 @@ gulp.task('jshint', function() {
 // Optimize Images
 gulp.task('images', function() {
   return gulp.src('app/images/**/*')
-    .pipe($.cache($.imagemin({
+    .pipe($.imagemin({
       progressive: true,
       interlaced: true
-    })))
+    }))
     .pipe(gulp.dest('dist/images'))
     .pipe($.size({title: 'images'}));
 });
 
 // Copy All Files At The Root Level (app)
+// Ignore manifest as they are handled by the
+// favicons task
 gulp.task('copy', function() {
   return gulp.src([
     'app/*',
     '!app/*.html',
+    '!app/manifest.webapp',
+    '!app/manifest.json',
     'node_modules/apache-server-configs/dist/.htaccess'
   ], {
     dot: true
