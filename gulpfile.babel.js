@@ -24,18 +24,21 @@
 // You can read more about the new JavaScript features here:
 // https://babeljs.io/docs/learn-es2015/
 
-import path from 'path';
-import gulp from 'gulp';
-import del from 'del';
-import runSequence from 'run-sequence';
-import browserSync from 'browser-sync';
-import swPrecache from 'sw-precache';
-import gulpLoadPlugins from 'gulp-load-plugins';
-import {output as pagespeed} from 'psi';
-import pkg from './package.json';
+import path from "path";
+import gulp from "gulp";
+import del from "del";
+import runSequence from "run-sequence";
+import browserSync from "browser-sync";
+import swPrecache from "sw-precache";
+import gulpLoadPlugins from "gulp-load-plugins";
+import pkg from "./package.json";
+import mockServer from "gulp-mock-server";
+import rev from "gulp-rev";
+import revCollector from "gulp-rev-collector";
 
 const $ = gulpLoadPlugins();
 const reload = browserSync.reload;
+const cdn = 'http://r.qilaihi.me/';
 
 // Lint JavaScript
 gulp.task('lint', () =>
@@ -52,16 +55,20 @@ gulp.task('images', () =>
       progressive: true,
       interlaced: true
     })))
-    .pipe(gulp.dest('dist/images'))
     .pipe($.size({title: 'images'}))
+    .pipe(gulp.dest('.tmp/images'))
+    .pipe(rev())
+    .pipe(gulp.dest('dist/images'))
+    .pipe(rev.manifest())
+    .pipe(gulp.dest('.tmp/rev-manifest/images'))
 );
 
 // Copy all files at the root level (app)
 gulp.task('copy', () =>
   gulp.src([
     'app/*',
-    '!app/*.html',
-    'node_modules/apache-server-configs/dist/.htaccess'
+    '!app/*.html'//,
+    //'node_modules/apache-server-configs/dist/.htaccess'
   ], {
     dot: true
   }).pipe(gulp.dest('dist'))
@@ -82,6 +89,8 @@ gulp.task('styles', () => {
     'bb >= 10'
   ];
 
+  var timestamp = +new Date();
+  var spriter = require('gulp-css-spriter');
   // For best performance, don't add Sass partials to `gulp.src`
   return gulp.src([
     'app/styles/**/*.scss',
@@ -94,36 +103,51 @@ gulp.task('styles', () => {
     }).on('error', $.sass.logError))
     .pipe($.autoprefixer(AUTOPREFIXER_BROWSERS))
     .pipe(gulp.dest('.tmp/styles'))
-    // Concatenate and minify styles
+    .pipe($.if('*.css', spriter({
+      'includeMode': 'implicit',
+      //'silent':false,
+      'spriteSheet': 'dist/images/spritesheet-' + timestamp + '.png',
+      'pathToSpriteSheetFromCSS': cdn + 'images/spritesheet-' + timestamp + '.png'
+    }).on('log', function (message) {
+      console.log(message)
+    })))
+    .pipe($.concat('main.min.css'))
     .pipe($.if('*.css', $.cssnano()))
+    .pipe(rev())
     .pipe($.size({title: 'styles'}))
     .pipe($.sourcemaps.write('./'))
-    .pipe(gulp.dest('dist/styles'));
+    .pipe(gulp.dest('dist/styles'))
+    .pipe(rev.manifest())
+    .pipe(gulp.dest('.tmp/rev-manifest/styles'));
 });
 
 // Concatenate and minify JavaScript. Optionally transpiles ES2015 code to ES5.
 // to enable ES2015 support remove the line `"only": "gulpfile.babel.js",` in the
 // `.babelrc` file.
-gulp.task('scripts', () =>
-    gulp.src([
-      // Note: Since we are not using useref in the scripts build pipeline,
-      //       you need to explicitly list your scripts here in the right order
-      //       to be correctly concatenated
-      './app/scripts/main.js'
-      // Other scripts
-    ])
-      .pipe($.newer('.tmp/scripts'))
-      .pipe($.sourcemaps.init())
-      .pipe($.babel())
-      .pipe($.sourcemaps.write())
-      .pipe(gulp.dest('.tmp/scripts'))
-      .pipe($.concat('main.min.js'))
-      .pipe($.uglify({preserveComments: 'some'}))
-      // Output files
-      .pipe($.size({title: 'scripts'}))
-      .pipe($.sourcemaps.write('.'))
-      .pipe(gulp.dest('dist/scripts'))
-);
+gulp.task('scripts', () => {
+  return gulp.src([
+    // Note: Since we are not using useref in the scripts build pipeline,
+    //       you need to explicitly list your scripts here in the right order
+    //       to be correctly concatenated
+    './app/scripts/main.js'
+    // Other scripts
+    //'./app/scripts/main2.js'
+  ])
+    .pipe($.newer('.tmp/scripts'))
+    .pipe($.sourcemaps.init())
+    .pipe($.babel())
+    .pipe($.sourcemaps.write())
+    .pipe(gulp.dest('.tmp/scripts'))
+    .pipe($.concat('main.min.js'))
+    .pipe($.uglify({preserveComments: 'some'}))
+    .pipe(rev())
+    // Output files
+    .pipe($.size({title: 'scripts'}))
+    .pipe($.sourcemaps.write('.'))
+    .pipe(gulp.dest('dist/scripts'))
+    .pipe(rev.manifest())
+    .pipe(gulp.dest('.tmp/rev-manifest/scripts'));
+});
 
 // Scan your HTML for assets & optimize them
 gulp.task('html', () => {
@@ -132,7 +156,28 @@ gulp.task('html', () => {
       searchPath: '{.tmp,app}',
       noAssets: true
     }))
+    .pipe(gulp.dest('dist'));
+});
 
+gulp.task('rev', () => {
+  return gulp.src(['dist/**/*.html', '.tmp/**/*.json'])
+    .pipe(revCollector({
+      replaceReved: true,
+      dirReplacements: {
+        'styles': function (manifestValue) {
+          return cdn + 'styles/' + manifestValue;
+        },
+        'scripts': function (manifestValue) {
+          return cdn + 'scripts/' + manifestValue;
+        },
+        'images': function (manifestValue) {
+          return cdn + 'images/' + manifestValue;
+        },
+        'images/touch': function (manifestValue) {
+          return cdn + 'images/touch/' + manifestValue;
+        }
+      }
+    }))
     // Minify any HTML
     .pipe($.if('*.html', $.htmlmin({
       removeComments: true,
@@ -147,8 +192,9 @@ gulp.task('html', () => {
     })))
     // Output files
     .pipe($.if('*.html', $.size({title: 'html', showFiles: true})))
-    .pipe(gulp.dest('dist'));
+    .pipe(gulp.dest('dist'))
 });
+
 
 // Clean output directory
 gulp.task('clean', () => del(['.tmp', 'dist/*', '!dist/.git'], {dot: true}));
@@ -191,26 +237,45 @@ gulp.task('serve:dist', ['default'], () =>
   })
 );
 
+gulp.task('mock-serve', ['scripts', 'styles'], () => {
+  gulp.src(['app', '.tmp'])
+    .pipe(mockServer({
+      port: 3002,
+      livereload: true
+    }))
+});
+
+gulp.task('mock-serve:dist', ['default'], () => {
+  gulp.src(['dist'])
+    .pipe(mockServer({
+      port: 3003,
+      livereload: true
+    }))
+});
+
 // Build production files, the default task
 gulp.task('default', ['clean'], cb =>
   runSequence(
-    'styles',
-    ['lint', 'html', 'scripts', 'images', 'copy'],
+    ['lint', 'images', 'copy'],
+    ['styles', 'scripts', 'html'],
+    'rev',
     'generate-service-worker',
     cb
   )
 );
 
 // Run PageSpeed Insights
-gulp.task('pagespeed', cb =>
-  // Update the below URL to the public URL of your site
-  pagespeed('example.com', {
-    strategy: 'mobile'
-    // By default we use the PageSpeed Insights free (no API key) tier.
-    // Use a Google Developer API key if you have one: http://goo.gl/RkN0vE
-    // key: 'YOUR_API_KEY'
-  }, cb)
-);
+/*
+ gulp.task('pagespeed', cb =>
+ // Update the below URL to the public URL of your site
+ pagespeed('example.com', {
+ strategy: 'mobile'
+ // By default we use the PageSpeed Insights free (no API key) tier.
+ // Use a Google Developer API key if you have one: http://goo.gl/RkN0vE
+ // key: 'YOUR_API_KEY'
+ }, cb)
+ );
+ */
 
 // Copy over the scripts that are used in importScripts as part of the generate-service-worker task.
 gulp.task('copy-sw-scripts', () => {
